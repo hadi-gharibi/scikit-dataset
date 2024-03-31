@@ -1,0 +1,33 @@
+# Ignore compiled files
+*.o
+*.pyc
+
+# Ignore editor and IDE files
+.vscode/
+.idea/
+
+# Ignore build output
+build/
+dist/
+
+# Ignore virtual environment
+venv/
+
+# Ignore log files
+*.log
+
+# Ignore cache and temporary files
+__pycache__/
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Ignore sensitive or personal information
+config.ini
+secrets.txt
+
+# Ignore generated documentation
+docs/
+
+# Ignore any other files or directories specific to your project
