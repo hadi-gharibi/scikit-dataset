@@ -1,0 +1,76 @@
+[tool.poetry]
+name = "scikit-dataset"
+version = "0.1.0"
+description = "A set of Python modules for creating datasets for scikit-learn compatible API."
+authors = ["Hadi Gharibi <hady.gharibi@gmail.com>"]
+license = "BSD 3-Clause License"
+readme = "README.md"
+packages = [
+    {include = "skdataset"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+scikit-learn = "^1.4.1.post1"
+pandas = "^2.2.1"
+
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.5.3"
+
+
+[tool.poetry.group.tests.dependencies]
+pytest = "^8.1.1"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.3.0"
+ruff = "^0.3.4"
+ipykernel = "^6.29.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.black]
+line-length = 88
+target_version = ['py39', 'py310', 'py311']
+preview = true
+exclude = '''
+/(
+    \.eggs         # exclude a few common directories in the
+  | \.git          # root of the project
+  | \.mypy_cache
+  | \.vscode
+)/
+'''
+
+[tool.ruff]
+# max line length for black
+line-length = 88
+target-version = "py38"
+exclude=[
+    ".git",
+    "__pycache__",
+    "doc/_build",
+    "doc/auto_examples",
+    "doc/tutorial",
+]
+
+[tool.ruff.lint]
+# all rules can be found here: https://beta.ruff.rs/docs/rules/
+select = ["E", "F", "W", "I"]
+ignore=[
+    # space before : (needed for how black formats slicing)
+    "E203",
+    # do not assign a lambda expression, use a def
+    "E731",
+    # do not use variables named 'l', 'O', or 'I'
+    "E741",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# It's fine not to put the import at the top of the file in the examples
+# folder.
+"examples/*"=["E402"]
