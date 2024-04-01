@@ -9,9 +9,15 @@ T = TypeVar("T", bound=Mapping)
 class SpliterType(Protocol):
     def __call__(self, dataset: T, *args: Any, **kwargs: Any) -> dict[str, T] | tuple[T]:
         ...
-        
-SimpleIndexType: TypeAlias = str | int
-SeqIndexType: TypeAlias = list[int] | list[str] | list[bool] | tuple[int, str] | tuple[Any, str] | tuple[Any, list[str]]
-NumpyIndexType: TypeAlias = npt.NDArray[np.int_] | npt.NDArray[np.bool_]
 
-IndexType: TypeAlias = SimpleIndexType | SeqIndexType | NumpyIndexType | slice | Callable[[Dataset], Any]
+class FunctionIndexType(Protocol):
+    def __call__(self, dataset: Dataset) -> Any:
+        ...
+
+
+Int: TypeAlias = int | np.integer
+SimpleIndexType: TypeAlias = str | Int
+SeqIndexType: TypeAlias = list[Int] | list[bool] | npt.NDArray[np.integer] | npt.NDArray[np.bool_] | slice
+N2DIndexType: TypeAlias = tuple[Any, str] | tuple[Any, list[str]] 
+
+IndexType: TypeAlias = SimpleIndexType | SeqIndexType | FunctionIndexType | N2DIndexType
