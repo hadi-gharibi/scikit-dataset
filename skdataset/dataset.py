@@ -6,11 +6,11 @@ from functools import partial
 import numpy.typing as npt
 import numpy as np
 if TYPE_CHECKING:
-    from skdataset.types import SpliterType, IndexType , NumpyIndexType
+    from skdataset.types import SpliterType, IndexType, Int, SeqIndexType
 
 
 class Dataset(dict):
-
+    Keywords = {'name', 'description', 'metadata'}
     def __init__(
             self,
             *,
@@ -22,10 +22,17 @@ class Dataset(dict):
         self.name = name
         self.description = description
         self.metadata = metadata or {}
+        kwargs = {k: self._fix_scalar(v) for k, v in kwargs.items()}
         super().__init__(kwargs)
         self._check_matching_sizes()
 
-
+    def _fix_scalar(self, value):
+        if hasattr(value, 'shape') and value.shape == ():
+            return value.reshape(1,)
+        elif not hasattr(value, '__len__'):
+            return [value]
+        return value
+    
     def _check_matching_sizes(self):
         """Check if all data variables have the same number of rows.
 
@@ -39,7 +46,7 @@ class Dataset(dict):
         if len(set(sizes)) > 1:
             all_sizes = {k: len(v) for k, v in self.items()}
             
-            raise ValueError(f'All data variables must have the same number of rows. Got {all_sizes}.')
+            raise ValueError(f'All data variables must have the same number of rows. Got {all_sizes}. {sizes}')
 
 
     def __getattr__(self, name):
@@ -69,10 +76,14 @@ class Dataset(dict):
             raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
     def __setattr__(self, name, value):
-        if name in self:
+        if name not in self.Keywords:
             self[name] = value
         else:
             super().__setattr__(name, value)
+        
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        self._check_matching_sizes()
     
     def __str__(self):
         """Return a string representation of the Dataset.
@@ -82,11 +93,10 @@ class Dataset(dict):
         str
             A string representation of the Dataset object, including the name, number of rows, and number of variables.
         """
-        name = self.name or 'Unnamed'
-        return f"Dataset: '{name}' with {len(self)} rows and {self.columns} variables."
+        return f"Dataset(name={self.name}, description={self.description}, metadata={self.metadata}) \n   - '{self.name}' dataaset has {len(self)} rows and {self.columns} variables."
 
 
-    def at(self, index: int, column: str) -> Any:
+    def at(self, index: Int, column: str) -> Any:
         """Access a single value for a row/column label pair.
 
 
@@ -104,7 +114,7 @@ class Dataset(dict):
         """
         return self.__getitem__(index).__getitem__(column)
     
-    def iloc(self, index: int | list[int] | npt.NDArray[np.int_] |  npt.NDArray[np.bool_] | slice, axis: int = 0) -> Dataset:
+    def iloc(self, index: Int | SeqIndexType, axis: int = 0) -> Dataset:
         """
         Returns a new Dataset object containing the rows or columns specified by the given index.
 
@@ -122,7 +132,7 @@ class Dataset(dict):
         """
         return self.take(index, axis=axis)
     
-    def take(self, indices: int | list[int] | npt.NDArray[np.int_] |  npt.NDArray[np.bool_] | slice, axis: int = 0) -> Dataset:
+    def take(self, indices: Int | SeqIndexType, axis: int = 0) -> Dataset:
         """
         Take elements from the dataset along an axis.
         """
@@ -130,10 +140,11 @@ class Dataset(dict):
             raise ValueError("Only axis=0 is supported.")
         return Dataset(**(self._get_rows(indices) | self.__dict__))
     
-    def _get_rows(self, index: int | list[int] | npt.NDArray[np.int_] |  npt.NDArray[np.bool_] | slice) -> dict[str, Any]:
-        if isinstance(index, int):
+    def _get_rows(self, index:Int | SeqIndexType) -> dict[str, Any]:
+        if isinstance(index, (int, np.integer)):
             if index < 0:
                 index = len(self) + index
+            index = int(cast(int, index))
             index = slice(index, index + 1)
         
         return {key: _safe_indexing(value, index, axis=0) for key, value in self.items()}
@@ -166,30 +177,67 @@ class Dataset(dict):
 
     
     def __getitem__(self, index: IndexType) -> Dataset | Any:
-        if isinstance(index, tuple) and len(index) == 2 and isinstance(index[1], (str, list)):
-            if isinstance(index[0], int) and isinstance(index[1], str):
-                return self.at(index[0], index[1])
-            elif all(isinstance(i, str) for i in index[1]):
-                return self.__getitem__(index[0]).__getitem__(index[1])
-            else:
-                raise ValueError("Invalid index. For 2D indexing, the second index must be a string or a list of strings.")
-        elif callable(index):
-            actual_index = index(self)
-            return self.__getitem__(actual_index)
-        elif isinstance(index, str):
-            if index not in self:
-                raise ValueError(f"Column '{index}' not found in the dataset.")
-            return self.get(index)
-        
-        elif isinstance(index, list) and all(isinstance(i, str) for i in index):
-            selected_vals = self._get_cols(cast(list[str], index))
+            """
+            Get the item(s) at the specified index(es) from the dataset.
 
-        else:
-            selected_vals = self._get_rows(cast(int | list[int] | NumpyIndexType | slice, index))
-        return Dataset(**(self.__dict__ | selected_vals))
+            Parameters
+            ----------
+            index : IndexType
+                The index(es) to retrieve the item(s) from the dataset. The index can be of different types:
+                - N2DIndexType: A tuple of two elements where the first element is an integer representing the row index,
+                  and the second element is either a string representing the column name or a list of strings representing
+                  multiple column names. This is used for 2D indexing. e.g., (0, 'column1') or (slice(0, 5), ['column1', 'column2'])
+                - FunctionIndexType: A callable object that takes the dataset as an argument and returns the actual index(es)
+                  to retrieve the item(s) from the dataset. This is useful for custom indexing operations.
+                - str: A string representing a single column name. This is used to retrieve a single column from the dataset.
+                - list[str]: A list of strings representing multiple column names. This is used to retrieve multiple columns
+                  from the dataset.
+
+            Returns
+            -------
+            Dataset | Any
+                The item(s) at the specified index(es) from the dataset. If you select one single column, it will return Any based on the type of the value.
+                In any other case, it will return a new Dataset object containing the selected rows and columns.
+
+            Raises
+            ------
+            ValueError
+                If the index is invalid or the specified column(s) are not found in the dataset.
+
+            ValueError
+                If the second index in a 2D index is not a string or a list of strings.
+            """
+            if isinstance(index, tuple) and len(index) == 2 and isinstance(index[1], (str, list)): # N2DIndexType
+                if isinstance(index[0], np.integer) and isinstance(index[1], str): # single row single column
+                    return self.at(cast(int, index[0]), cast(str, index[1])) 
+                elif hasattr(index[1], '__iter__') and all(isinstance(i, str) for i in index[1]): # type: ignore # multiple rows and columns
+                    return self.__getitem__(index[0]).__getitem__(index[1])
+                else:
+                    raise ValueError("Invalid index. For 2D indexing, the second index must be a string or a list of strings.")
+            elif callable(index): # FunctionIndexType
+                actual_index = index(self)
+                return self.__getitem__(actual_index)
+            elif isinstance(index, str): # single column
+                if index not in self:
+                    raise ValueError(f"Column '{index}' not found in the dataset.")
+                return self.get(index)
+            
+            elif isinstance(index, list) and all(isinstance(i, str) for i in index): # multiple columns
+                selected_vals = self._get_cols(cast(list[str], index))
+
+            else: # multiple rows
+                selected_vals = self._get_rows(index) # type: ignore
+            return Dataset(**(self.__dict__ | selected_vals))
         
     def __len__(self):
         return len(next(iter(self.values())))
+    
+    def __eq__(self, other):
+        if not isinstance(other, Dataset):
+            return False
+        if self.keys() != other.keys():
+            return False
+        return all(np.array_equal(self[k], other[k]) for k in self.keys()) # type: ignore
     
     @property
     def shape(self):
