@@ -34,7 +34,7 @@ jobs:
           echo $(ls)
       
       - name: Install project dependencies
-        run: poetry install
+        run: poetry install --no-interaction --no-root
 
       - name: Static code checking with Pyflakes
         run: |
