@@ -31,10 +31,10 @@ jobs:
         uses: snok/install-poetry@v1
       - name: check filies
         run: |
-        ls
-        pwd
-        cd ..
-        ls
+          ls
+          pwd
+          cd ..
+          ls
       
       - name: Install project dependencies
         run: poetry install
