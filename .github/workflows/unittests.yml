@@ -1,0 +1,53 @@
+name: Run Pytest and Upload Coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run:
+    name: Run unit tests and upload coverage
+    runs-on: ${{ matrix.os }}
+    env:
+      USING_COVERAGE: '3.10'
+    strategy:
+      matrix:
+        os: [ubuntu-latest] #, macos-latest, windows-latest]
+        python-version: ["3.9"] # "3.10", "3.11",]
+    steps:
+      # - name: Checkout code
+      #   uses: actions/checkout@v2
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install poetry
+        run: pipx install poetry==1.6.1
+
+      - name: Install project dependencies
+        run: poetry install
+
+      - name: Static code checking with Pyflakes
+        run: |
+          pyflakes skdataset
+      - name: Format code with black
+        run: |
+          poetry run black skdataset
+      - name: Run unit tests
+        run: |
+          poetry run pytest
+      - name: Generate coverage report
+        run: |
+          poetry run pytest --cov=skdataset --cov-report=xml
+
+      # - name: Upload coverage reports to Codecov
+      #   uses: codecov/codecov-action@v4.0.1
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     slug: hadi-gharibi/scikit-dataset
