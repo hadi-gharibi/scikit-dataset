@@ -32,9 +32,6 @@ jobs:
       - name: check filies
         run: |
           ls
-          pwd
-          cd ..
-          ls
       
       - name: Install project dependencies
         run: poetry install
