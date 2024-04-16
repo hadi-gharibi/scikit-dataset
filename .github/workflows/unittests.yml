@@ -29,7 +29,12 @@ jobs:
 
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
-
+      - name: check filies
+        run: ls
+        run: pwd
+        run: cd ..
+        run: ls
+      
       - name: Install project dependencies
         run: poetry install
 
