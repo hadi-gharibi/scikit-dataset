@@ -1,4 +1,4 @@
-name: Run Pytest and Upload Coverage
+name: test
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  run:
+  test-packages:
     name: Run unit tests and upload coverage
     runs-on: ${{ matrix.os }}
     env:
