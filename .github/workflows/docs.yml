@@ -26,4 +26,5 @@ jobs:
                 key: mkdocs-material-${{ env.cache_id }}
                 path: .cache
                 restore-keys: mkdocs-material-
-            - run: mkdocs gh-deploy --force
+            - run: poetry install --only docs
+            - run: poetry run mkdocs gh-deploy --force
