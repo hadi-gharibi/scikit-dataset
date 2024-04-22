@@ -28,6 +28,5 @@ config.ini
 secrets.txt
 
 # Ignore generated documentation
-docs/
 site/
 # Ignore any other files or directories specific to your project
