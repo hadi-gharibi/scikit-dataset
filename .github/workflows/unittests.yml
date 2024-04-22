@@ -29,8 +29,8 @@ jobs:
 
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
-      - name: XDTesting Print Directory Structure
-        uses: FiorelaCiroku/XDTesting-Print-Directory-Structure@v1.0.2
+      # - name: XDTesting Print Directory Structure
+      #   uses: FiorelaCiroku/XDTesting-Print-Directory-Structure@v1.0.2
       
       - name: Install project dependencies
         run: poetry install --no-interaction --no-root
