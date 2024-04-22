@@ -46,7 +46,7 @@ jobs:
           poetry run pytest skdataset/tests
       - name: Generate coverage report
         run: |
-          poetry run coverage run --source=sklean-dataset --module pytest --verbose skdataset/tests && coverage report --show-missing
+          poetry run coverage run --source=skdataset --module pytest --verbose skdataset/tests && coverage report --show-missing
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
