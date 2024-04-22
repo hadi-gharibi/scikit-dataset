@@ -32,9 +32,11 @@ ipykernel = "^6.29.4"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.pytest.ini_options]
+addopts = "-p no:cacheprovider"
 
 [tool.black]
-line-length = 88
+line-length = 120
 target_version = ['py39', 'py310', 'py311']
 preview = true
 exclude = '''
@@ -48,7 +50,7 @@ exclude = '''
 
 [tool.ruff]
 # max line length for black
-line-length = 88
+line-length = 120
 target-version = "py38"
 exclude=[
     ".git",
