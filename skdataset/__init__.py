@@ -1,1 +1,1 @@
-from skdataset.dataset import Dataset, DatasetDict
+from skdataset.dataset import Dataset, DatasetDict  # noqa: F401
