@@ -43,10 +43,13 @@ jobs:
         run: poetry run pytest skdataset/tests
 
       - name: Generate coverage report
-        run: poetry run coverage run --source=skdataset -m pytest skdataset/tests && poetry run coverage report --show-missing
+        run: poetry run coverage run --source=skdataset -m pytest skdataset/tests && poetry run coverage xml
         
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: hadi-gharibi/scikit-dataset
+          file: ./coverage.xml
+          flags: unittests
+          fail_ci_if_error: true
