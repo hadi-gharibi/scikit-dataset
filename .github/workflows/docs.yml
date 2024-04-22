@@ -26,5 +26,7 @@ jobs:
                 key: mkdocs-material-${{ env.cache_id }}
                 path: .cache
                 restore-keys: mkdocs-material-
+            - name: Install and configure Poetry
+              uses: snok/install-poetry@v1
             - run: poetry install --only docs
             - run: poetry run mkdocs gh-deploy --force
