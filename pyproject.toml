@@ -21,6 +21,7 @@ mkdocs = "^1.5.3"
 
 [tool.poetry.group.tests.dependencies]
 pytest = "^8.1.1"
+coverage = "^7.4.4"
 
 
 [tool.poetry.group.dev.dependencies]
