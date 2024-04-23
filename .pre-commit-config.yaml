@@ -6,12 +6,6 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.0.0
-    hooks:
-      - id: eslint
-        args: ["--fix"]
-      - id: eslint-no-regex
   - repo: https://github.com/pre-commit/pre-commit
     rev: v2.15.0
     hooks:
