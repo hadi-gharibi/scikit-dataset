@@ -19,7 +19,7 @@ class FunctionIndexType(Protocol):
 
 Int: TypeAlias = int | np.integer
 SimpleIndexType: TypeAlias = str | Int
-SeqIndexType: TypeAlias = list[Int] | list[bool] | npt.NDArray[np.integer] | npt.NDArray[np.bool_] | slice
+SeqIndexType: TypeAlias = list[Int] | list[bool] | npt.NDArray[np.integer] | npt.NDArray[np.bool_] | slice | list[str]
 N2DIndexType: TypeAlias = tuple[Any, str] | tuple[Any, list[str]]
 
 IndexType: TypeAlias = SimpleIndexType | SeqIndexType | FunctionIndexType | N2DIndexType
