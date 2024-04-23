@@ -7,10 +7,8 @@ repos:
     hooks:
       # Run the linter.
       - id: ruff
-        args: [--check skdataset]
       # Run the formatter.
       - id: ruff-format
-        args: [format skdataset]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.4.0
     hooks:
