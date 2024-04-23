@@ -15,7 +15,6 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
     # add ruff
-  - repo: http
   - repo: https://github.com/psf/black
     rev: 21.12b0
     hooks:
