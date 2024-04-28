@@ -100,6 +100,10 @@ class Dataset(dict):
         return f"""Dataset(name={self.name}, description={self.description}, metadata={self.metadata})
             - '{self.name}' dataaset has {len(self)} rows and {self.columns} variables."""
 
+    def __iter__(self):
+        for value in self.values():
+            yield value
+
     def at(self, index: Int, column: str) -> Any:
         """Access a single value for a row/column label pair.
 
@@ -239,7 +243,7 @@ class Dataset(dict):
         return Dataset(**(self.__dict__ | selected_vals))
 
     def __len__(self):
-        return len(next(iter(self.values())))
+        return len(next(iter(self)))
 
     def __eq__(self, other):
         if not isinstance(other, Dataset):
@@ -331,14 +335,12 @@ class Dataset(dict):
 
 
 class DatasetDict(dict):
-
     def __init__(
         self,
         data: dict[str, Dataset],
         name: str = "Dict of Datasets",
         description: Optional[str] = None,
         metadata: Optional[dict] = None,
-        **kwargs,
     ) -> None:
         self.name = name
         self.description = description
