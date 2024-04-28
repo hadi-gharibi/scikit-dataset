@@ -29,6 +29,7 @@ coverage = "^7.4.4"
 black = "^24.3.0"
 ruff = "^0.3.4"
 ipykernel = "^6.29.4"
+pre-commit = "^3.7.0"
 
 [build-system]
 requires = ["poetry-core"]

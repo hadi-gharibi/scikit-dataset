@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class Dataset(dict):
-    Keywords = {"name", "description", "metadata"}
+    KEYWORDS = {"name", "description", "metadata"}
 
     def __init__(
         self,
@@ -80,7 +80,7 @@ class Dataset(dict):
             raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
     def __setattr__(self, name, value):
-        if name not in self.Keywords:
+        if name not in self.KEYWORDS:
             self[name] = value
         else:
             super().__setattr__(name, value)
@@ -277,9 +277,7 @@ class Dataset(dict):
         self_copy = self.copy()
         return func(self_copy, *args, **kwargs)
 
-    def copy(
-        self,
-    ):
+    def copy(self):
         """
         Returns a copy of the dataset.
         """
